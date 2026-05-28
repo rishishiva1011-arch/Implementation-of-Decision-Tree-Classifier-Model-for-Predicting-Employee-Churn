@@ -30,81 +30,67 @@ Program to implement the Decision Tree Classifier Model for Predicting Employee 
 Developed by: Rishikesh S
 RegisterNumber:  212225240118
 */
-# Import libraries
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
-from sklearn import tree
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, confusion_matrix
 
-# ------------------------------
-# Step 1: Sample dataset
-# ------------------------------
-data = {
-    'satisfaction_level': [0.38, 0.80, 0.11, 0.72, 0.37, 0.41, 0.10, 0.92],
-    'last_evaluation': [0.53, 0.86, 0.88, 0.87, 0.52, 0.50, 0.77, 0.89],
-    'number_project': [2, 5, 7, 5, 2, 2, 6, 5],
-    'average_monthly_hours': [157, 262, 272, 223, 159, 153, 247, 224],
-    'time_spend_company': [3, 6, 4, 5, 3, 3, 4, 5],
-    'Work_accident': [0, 0, 0, 0, 0, 0, 0, 0],
-    'promotion_last_5years': [0, 0, 0, 0, 0, 0, 0, 0],
-    'Departments': ['sales','accounting','hr','technical','support','management','marketing','product'],
-    'salary': ['low','medium','medium','high','low','low','medium','high'],
-    'left': [1, 1, 1, 1, 1, 0, 1, 0]  # Target variable: 1=Churn, 0=Stayed
-}
+df = pd.read_csv("Employee.csv")
 
-df = pd.DataFrame(data)
+label = LabelEncoder()
 
-# ------------------------------
-# Step 2: Encode categorical variables
-# ------------------------------
-df = pd.get_dummies(df, columns=['Departments','salary'], drop_first=True)
+df['Work_accident'] = label.fit_transform(df['Work_accident'])
+df['promotion_last_5years'] = label.fit_transform(df['promotion_last_5years'])
+df['Departments '] = label.fit_transform(df['Departments '])
+df['salary'] = label.fit_transform(df['salary'])
+df['left'] = label.fit_transform(df['left'])
 
-# ------------------------------
-# Step 3: Split into features and target
-# ------------------------------
-X = df.drop('left', axis=1)
+X = df[['satisfaction_level',
+        'last_evaluation',
+        'number_project',
+        'average_montly_hours',
+        'time_spend_company']]
+
 y = df['left']
 
-# ------------------------------
-# Step 4: Train-test split
-# ------------------------------
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
-# ------------------------------
-# Step 5: Create Decision Tree Classifier
-# ------------------------------
-dt_model = DecisionTreeClassifier(criterion='entropy', max_depth=4, random_state=42)
-dt_model.fit(X_train, y_train)
+model = DecisionTreeClassifier()
 
-# ------------------------------
-# Step 6: Make predictions
-# ------------------------------
-y_pred = dt_model.predict(X_test)
+model.fit(X_train, y_train)
 
-# ------------------------------
-# Step 7: Evaluate the model
-# ------------------------------
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
-print("\nAccuracy Score:", accuracy_score(y_test, y_pred))
-print("\nClassification Report:\n", classification_report(y_test, y_pred))
+y_pred = model.predict(X_test)
 
-# ------------------------------
-# Step 8: Visualize the decision tree
-# ------------------------------
-plt.figure(figsize=(20,10))
-tree.plot_tree(dt_model, feature_names=X.columns, class_names=['Stayed','Churn'], filled=True)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+plt.figure(figsize=(12,8))
+
+plot_tree(model,
+          feature_names=X.columns,
+          class_names=['Stay', 'Left'],
+          filled=True)
+
+plt.title("Employee Churn Decision Tree")
+
 plt.show()
 ```
 
 ## Output:
 
-<img width="617" height="382" alt="image" src="https://github.com/user-attachments/assets/9212e158-b30b-4027-a7b3-804ed7f730a7" />
+<img width="760" height="213" alt="Screenshot 2026-05-28 150619" src="https://github.com/user-attachments/assets/4f1ffbb8-ebb7-4fe0-b776-fd1aa2fea061" />
+
 
 <br>
 
-<img width="1570" height="790" alt="image" src="https://github.com/user-attachments/assets/65afcfae-dbae-4835-a7c8-75fa18415680" />
+<img width="960" height="658" alt="image" src="https://github.com/user-attachments/assets/91205e65-b3ab-4183-9b53-183cac3b9bbc" />
+
 
 
 ## Result:
